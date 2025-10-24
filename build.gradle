@@ -1,7 +1,8 @@
 plugins {
-    id 'dev.architectury.loom' version '1.11-SNAPSHOT' apply false
+    id 'dev.architectury.loom' version '1.7.419' apply false
     id 'architectury-plugin' version '3.4-SNAPSHOT'
     id 'com.gradleup.shadow' version '8.3.6' apply false
+    id 'io.github.pacifistmc.forgix' version '1.2.9' apply false
 }
 
 architectury {
@@ -67,4 +68,44 @@ subprojects {
             // retrieving dependencies.
         }
     }
+}
+
+// Forgix configuration for merging Fabric, Forge, and Quilt JARs into a single file
+apply plugin: 'io.github.pacifistmc.forgix'
+
+forgix {
+    group = 'com.theplumteam'
+    mergedJarName = 'blockpops-merged.jar'
+    outputDir = 'build/libs'
+
+    // Let Forgix auto-detect the JARs from subprojects
+    fabric()
+    forge()
+    quilt()
+}
+
+// Custom task for one-click build and merge (incremental - fast)
+task buildAndMerge {
+    group = 'build'
+    description = 'Builds all loaders and merges them into a single JAR (incremental build)'
+
+    // Build all subprojects
+    dependsOn subprojects.collect { it.tasks.findByPath('build') }.findAll { it != null }
+    dependsOn 'mergeJars'
+
+    // Ensure all builds run before mergeJars
+    tasks.findByName('mergeJars').mustRunAfter(subprojects.collect { it.tasks.findByPath('build') })
+}
+
+// Custom task for clean build and merge (full rebuild - slower but safer)
+task cleanBuildAndMerge {
+    group = 'build'
+    description = 'Clean builds all loaders and merges them into a single JAR (full rebuild)'
+
+    // Clean first, then build, then merge
+    dependsOn subprojects.collect { it.tasks.findByPath('clean') }.findAll { it != null }
+    dependsOn 'buildAndMerge'
+
+    // Ensure clean runs before build
+    tasks.findByName('buildAndMerge').mustRunAfter(subprojects.collect { it.tasks.findByPath('clean') })
 }

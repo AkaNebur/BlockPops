@@ -1,1 +1,23 @@
+# Gradle
+.gradle/
+build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Minecraft
+run/
+logs/
+
+# Forgix output
+build/forgix/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Plan file
 PLAN..md
