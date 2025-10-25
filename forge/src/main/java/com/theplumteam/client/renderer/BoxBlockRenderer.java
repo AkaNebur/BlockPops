@@ -9,15 +9,19 @@ import com.theplumteam.figure.FigureType;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class BoxBlockRenderer extends GeoBlockRenderer<BoxBlockEntity> {
-    private final FigureModel figureModel;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoxBlockRenderer.class);
+    private final GeoBlockRenderer<BoxBlockEntity> figureRenderer;
 
     public BoxBlockRenderer() {
         super(new BoxBlockModel());
-        this.figureModel = new FigureModel();
+        // Create a separate renderer instance for the figure (like Lineages does with the book)
+        this.figureRenderer = new GeoBlockRenderer<>(new FigureModel());
     }
 
     @Override
@@ -32,20 +36,21 @@ public class BoxBlockRenderer extends GeoBlockRenderer<BoxBlockEntity> {
         // Then, render the figure model if one exists
         FigureType figureType = animatable.getFigureType();
         if (figureType.hasFigure()) {
-            // Get the figure's model
-            BakedGeoModel figureGeoModel = figureModel.getBakedModel(figureModel.getModelResource(animatable));
+            poseStack.pushPose();
 
-            // Get the figure's texture
-            ResourceLocation figureTexture = figureModel.getTextureResource(animatable);
-            RenderType figureRenderType = RenderType.entityCutout(figureTexture);
+            // Apply figure offset and scale
+            poseStack.translate(animatable.getFigureOffsetX(),
+                              animatable.getFigureOffsetY(),
+                              animatable.getFigureOffsetZ());
+            poseStack.scale((float) animatable.getFigureScale(),
+                          (float) animatable.getFigureScale(),
+                          (float) animatable.getFigureScale());
 
-            // Get a new vertex consumer for the figure
-            VertexConsumer figureBuffer = bufferSource.getBuffer(figureRenderType);
+            // Render the figure using separate renderer (like Lineages does with the book)
+            figureRenderer.render(animatable, partialTick, poseStack, bufferSource,
+                                packedLight, packedOverlay);
 
-            // Render the figure model - it already has the correct positioning from its pivot in the model file
-            super.actuallyRender(poseStack, animatable, figureGeoModel, figureRenderType, bufferSource,
-                               figureBuffer, isReRender, partialTick, packedLight, packedOverlay,
-                               red, green, blue, alpha);
+            poseStack.popPose();
         }
     }
 }
