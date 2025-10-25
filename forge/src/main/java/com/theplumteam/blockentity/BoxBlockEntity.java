@@ -30,9 +30,9 @@ public class BoxBlockEntity extends BlockEntity implements GeoBlockEntity {
     private FigureType figureType = FigureType.DEFAULT;
 
     // Figure positioning - correct values found through testing
-    private double figureOffsetX = -0.55;
+    private double figureOffsetX = -0.60;
     private double figureOffsetY = 0.0;
-    private double figureOffsetZ = -0.40;
+    private double figureOffsetZ = -0.55;
     private double figureScale = 1.0;
 
     public BoxBlockEntity(BlockPos pos, BlockState blockState) {

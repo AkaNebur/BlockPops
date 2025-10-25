@@ -2,12 +2,14 @@ package com.theplumteam.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.theplumteam.block.BoxBlock;
 import com.theplumteam.blockentity.BoxBlockEntity;
 import com.theplumteam.client.model.BoxBlockModel;
 import com.theplumteam.client.model.FigureModel;
 import com.theplumteam.figure.FigureType;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +19,18 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 public class BoxBlockRenderer extends GeoBlockRenderer<BoxBlockEntity> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BoxBlockRenderer.class);
     private final GeoBlockRenderer<BoxBlockEntity> figureRenderer;
+    private boolean renderingFigure = false;
 
     public BoxBlockRenderer() {
         super(new BoxBlockModel());
         // Create a separate renderer instance for the figure (like Lineages does with the book)
-        this.figureRenderer = new GeoBlockRenderer<>(new FigureModel());
+        this.figureRenderer = new GeoBlockRenderer<>(new FigureModel()) {
+            @Override
+            protected void rotateBlock(Direction facing, PoseStack poseStack) {
+                // Don't apply block rotation to the figure - we want it to always face the same direction
+                // or we can apply a custom rotation here
+            }
+        };
     }
 
     @Override
@@ -47,6 +56,7 @@ public class BoxBlockRenderer extends GeoBlockRenderer<BoxBlockEntity> {
                           (float) animatable.getFigureScale());
 
             // Render the figure using separate renderer (like Lineages does with the book)
+            // Note: The figure will inherit the block's rotation from GeckoLib's automatic rotation
             figureRenderer.render(animatable, partialTick, poseStack, bufferSource,
                                 packedLight, packedOverlay);
 
