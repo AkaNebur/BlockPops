@@ -1,6 +1,6 @@
 package com.theplumteam;
 
-public final class ExampleMod {
+public final class BlockPopsMod {
     public static final String MOD_ID = "blockpops";
 
     public static void init() {

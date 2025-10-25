@@ -7,9 +7,9 @@ license = "Insert License Here"
 modId = "blockpops"
 version = "${version}"
 displayName = "BlockPops"
-authors = "Me!"
+authors = "ThePlumTeam"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+BlockPops - A Minecraft mod featuring animated blocks and interactive gameplay mechanics.
 '''
 #logoFile = ""
 
